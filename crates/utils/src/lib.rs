@@ -18,9 +18,9 @@ use futures::StreamExt;
 use reqwest::Response;
 use rustls::{
     client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
-    ClientConfig, RootCertStore, SignatureScheme,
+    ClientConfig, SignatureScheme,
 };
-use rustls_pki_types::TrustAnchor;
+use rustls_platform_verifier::BuilderVerifierExt;  
 
 pub const BLOB_HASH_LEN: usize = 32;
 
@@ -280,16 +280,8 @@ pub fn rustls_client_config(allow_invalid_certs: bool) -> ClientConfig {
     let config = ClientConfig::builder();
 
     if !allow_invalid_certs {
-        let mut root_cert_store = RootCertStore::empty();
-
-        root_cert_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| TrustAnchor {
-            subject: ta.subject.clone(),
-            subject_public_key_info: ta.subject_public_key_info.clone(),
-            name_constraints: ta.name_constraints.clone(),
-        }));
-
         config
-            .with_root_certificates(root_cert_store)
+            .with_platform_verifier()
             .with_no_client_auth()
     } else {
         config

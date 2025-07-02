@@ -22,10 +22,10 @@ use compact_str::ToCompactString;
 use futures::StreamExt;
 use reqwest::Response;
 use rustls::{
-    ClientConfig, RootCertStore, SignatureScheme,
+    ClientConfig, SignatureScheme,
     client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
 };
-use rustls_pki_types::TrustAnchor;
+use rustls_platform_verifier::BuilderVerifierExt;
 
 pub use downcast_rs;
 pub use erased_serde;
@@ -307,7 +307,7 @@ pub fn rustls_client_config(allow_invalid_certs: bool) -> ClientConfig {
         }));
 
         config
-            .with_root_certificates(root_cert_store)
+            .with_platform_verifier()
             .with_no_client_auth()
     } else {
         config

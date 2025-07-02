@@ -253,7 +253,7 @@ jobs:
       contents: write
       attestations: write
     if: github.event_name == 'push' || inputs.Release
-    needs: [linux, windows, macos]
+    needs: [linux]
     runs-on: ubuntu-latest
     steps:
       - name: Download Artifacts

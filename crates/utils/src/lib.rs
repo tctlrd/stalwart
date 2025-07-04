@@ -298,14 +298,6 @@ pub fn rustls_client_config(allow_invalid_certs: bool) -> ClientConfig {
     let config = ClientConfig::builder();
 
     if !allow_invalid_certs {
-        let mut root_cert_store = RootCertStore::empty();
-
-        root_cert_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().map(|ta| TrustAnchor {
-            subject: ta.subject.clone(),
-            subject_public_key_info: ta.subject_public_key_info.clone(),
-            name_constraints: ta.name_constraints.clone(),
-        }));
-
         config
             .with_platform_verifier()
             .with_no_client_auth()

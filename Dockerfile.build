@@ -19,7 +19,7 @@ RUN \
     rm -f /etc/apt/apt.conf.d/docker-clean && \
     echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' >/etc/apt/apt.conf.d/keep-cache && \
     apt-get update && \
-    apt-get install -yq --no-install-recommends curl jq xz-utils make libclang-19-dev
+    apt-get install -yq --no-install-recommends curl jq xz-utils make libclang-19-dev pkg-config libssl-dev build-essential
 # Install zig
 RUN \
     ZIG_VERSION=0.13.0 && \

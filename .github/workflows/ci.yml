@@ -268,11 +268,7 @@ jobs:
               for file in `ls`; do
                   filename="${file%.*}"
                   extension="${file##*.}"
-                  if [ "$extension" = "exe" ]; then
-                      7z a -tzip "${filename}-${archive_dir_name}.zip" "$file" > /dev/null
-                  else
-                      tar -czf "${filename}-${archive_dir_name}.tar.gz" "$file"
-                  fi
+                  tar -czf "${filename}-${archive_dir_name}.tar.gz" "$file"
               done
               cd $BASE_DIR
           }
@@ -288,21 +284,18 @@ jobs:
         with:
           subject-path: |
             archive/**/*.tar.gz
-            archive/**/*.zip
 
       - name: Use cosign to sign existing artifacts
         uses: sigstore/gh-action-sigstore-python@v3.0.1
         with:
           inputs: |
             archive/**/*.tar.gz
-            archive/**/*.zip
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             archive/**/*.tar.gz
-            archive/**/*.zip
             archive/**/*.sigstore.json
           prerelease: ${{!startsWith(github.ref, 'refs/tags/') || null}}
           tag_name: ${{!startsWith(github.ref, 'refs/tags/') && 'nightly' || null}}

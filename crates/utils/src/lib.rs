@@ -23,7 +23,7 @@ use futures::StreamExt;
 use reqwest::Response;
 use rustls::{
     ClientConfig, SignatureScheme,
-    client::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
+    client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
 };
 use rustls_platform_verifier::Verifier;
 

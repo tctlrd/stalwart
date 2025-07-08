@@ -25,7 +25,7 @@ use rustls::{
     ClientConfig, SignatureScheme,
     client::danger::{HandshakeSignatureValid, ServerCertVerified, ServerCertVerifier},
 };
-use rustls_platform_verifier::Verifier;
+use rustls_platform_verifier::BuilderVerifierExt;
 
 pub use downcast_rs;
 pub use erased_serde;
@@ -295,17 +295,14 @@ pub async fn wait_for_shutdown() {
 }
 
 pub fn rustls_client_config(allow_invalid_certs: bool) -> ClientConfig {
-    let config_builder = ClientConfig::builder().with_safe_defaults();
+    let config = ClientConfig::builder();
 
     if !allow_invalid_certs {
-        let verifier = Verifier::new_platform_verifier()
-            .expect("Failed to create platform verifier (is system CA store available?)");
-        config_builder
-            .with_custom_certificate_verifier(Arc::new(verifier))
+        config
+            .with_platform_verifier()
             .with_no_client_auth()
     } else {
-        // You may keep your DummyVerifier for test/dev
-        config_builder
+        config
             .dangerous()
             .with_custom_certificate_verifier(Arc::new(DummyVerifier {}))
             .with_no_client_auth()

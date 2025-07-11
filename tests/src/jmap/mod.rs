@@ -303,7 +303,7 @@ async fn init_jmap_tests(store_id: &str, delete_if_exists: bool) -> JMAPTest {
     let data = Data::parse(&mut config);
     let cache = Caches::parse(&mut config);
     let store = core.storage.data.clone();
-    let (ipc, mut ipc_rxs) = build_ipc(&mut config, false);
+    let (ipc, mut ipc_rxs) = build_ipc(false);
     let inner = Arc::new(Inner {
         shared_core: core.into_shared(),
         data,
@@ -376,6 +376,7 @@ async fn init_jmap_tests(store_id: &str, delete_if_exists: bool) -> JMAPTest {
         .credentials(Credentials::basic("admin", "secret"))
         .timeout(Duration::from_secs(3600))
         .accept_invalid_certs(true)
+        .follow_redirects(["127.0.0.1"])
         .connect("https://127.0.0.1:8899")
         .await
         .unwrap();
@@ -496,6 +497,7 @@ pub async fn test_account_login(login: &str, secret: &str) -> Client {
         .credentials(Credentials::basic(login, secret))
         .timeout(Duration::from_secs(5))
         .accept_invalid_certs(true)
+        .follow_redirects(["127.0.0.1"])
         .connect("https://127.0.0.1:8899")
         .await
         .unwrap()
@@ -799,18 +801,19 @@ hash = 64
 [resolver]
 type = "system"
 
-[queue.outbound]
-next-hop = [ { if = "rcpt_domain == 'example.com'", then = "'local'" }, 
+[queue.strategy]
+gateway = [ { if = "rcpt_domain == 'example.com'", then = "'local'" }, 
              { if = "contains(['remote.org', 'foobar.com', 'test.com', 'other_domain.com'], rcpt_domain)", then = "'mock-smtp'" },
-             { else = false } ]
+             { else = "'mx'" } ]
 
-[remote."mock-smtp"]
+[queue.gateway."mock-smtp"]
+type = "relay"
 address = "localhost"
 port = 9999
 protocol = "smtp"
 
-[remote."mock-smtp".tls]
-implicit = false
+[queue.gateway."mock-smtp".tls]
+enable = false
 allow-invalid-certs = true
 
 [session.extensions]
